@@ -1,6 +1,11 @@
 import pandas as pd
 import os
-from .. import cmder
+
+import sys
+
+sys.path.append("..")
+
+import cmder
 
 SPLIT_PATH = "../dataset/shanghai_gaze/train_test_set.xlsx"
 SET_PATH = "../dataset/shanghai_gaze/"

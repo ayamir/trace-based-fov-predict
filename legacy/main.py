@@ -1,8 +1,6 @@
 import argparse
 
 
-from .. import model as md
-from .. import cmder
 from preprocessor import *
 from torch.utils.data import TensorDataset, DataLoader
 
@@ -21,6 +19,13 @@ import numpy as np
 
 matplotlib.use("agg")
 import matplotlib.pyplot as plt
+
+import sys
+
+sys.path.append("..")
+
+import cmder
+from model import *
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -54,7 +59,7 @@ def train_loop(dataloader, loss_name, loss_fn, epochs, lr):
     cmder.warningOut(f"Train models with {loss_name}")
     model_dir = MODELS_PATH + loss_name + "/models_e" + str(epochs) + "/"
 
-    model = md.VPLSTM(hid_size=64, layers=1, input_size=2, output_size=2)
+    model = VPLSTM(hid_size=64, layers=1, input_size=2, output_size=2)
     model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     torcheck.register(optimizer)
