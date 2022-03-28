@@ -13,7 +13,7 @@ app = Flask(__name__)
 cors = CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
 
-model_dir = "./bak_models/MAE/models_e50/49/"
+model_dir = "./hw1pw1models/MAE/models_e50/49/"
 
 host = "10.112.79.143"
 port = 5000
