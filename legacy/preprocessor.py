@@ -2,14 +2,14 @@ import pandas as pd
 import os
 import cmder
 
-SPLIT_PATH = "../dataset/shanghai_gaze/train_test_set.xlsx"
-SET_PATH = "../dataset/shanghai_gaze/"
+SPLIT_PATH = "../../dataset/shanghai_gaze/train_test_set.xlsx"
+SET_PATH = "../../dataset/shanghai_gaze/"
 
 HW = 1
 PW = 1
 FPS = 30
 DOWNSAMPLE = 2
-MODELS_PATH = "./hw" + str(HW) + "pw" + str(PW) + "models/"
+MODELS_PATH = "../../models/legacy/hw" + str(HW) + "pw" + str(PW) + "models/"
 
 
 class Set:
