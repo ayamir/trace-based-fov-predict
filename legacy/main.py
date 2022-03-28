@@ -1,6 +1,7 @@
 import argparse
 
 
+from model import *
 from preprocessor import *
 from torch.utils.data import TensorDataset, DataLoader
 
@@ -10,6 +11,7 @@ from preprocessor import FPS
 from preprocessor import DOWNSAMPLE
 from preprocessor import MODELS_PATH
 
+import cmder
 import mlflow.pytorch
 import torch
 import torcheck
@@ -19,13 +21,6 @@ import numpy as np
 
 matplotlib.use("agg")
 import matplotlib.pyplot as plt
-
-import sys
-
-sys.path.append("..")
-
-import cmder
-from model import *
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")

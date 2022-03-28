@@ -2,12 +2,12 @@ from flask import Flask, request
 from flask_cors import CORS, cross_origin
 from torch.utils.data import TensorDataset, DataLoader
 from model import *
-from preprocessor import *
 import mlflow.pytorch
 import numpy as np
 import torch
 import math
 import json
+from preprocessor import *
 
 app = Flask(__name__)
 cors = CORS(app)
