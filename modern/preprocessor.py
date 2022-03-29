@@ -1,6 +1,7 @@
 import re
 import os
 import cmder
+import random
 
 from pathlib import Path
 import pandas as pd
@@ -37,7 +38,7 @@ def align_filename():
         new_no = str(eval(old_no) + 9)
         new_file = new_no.join(file.rsplit(old_no, 1))
         os.system(f"mv {file} {new_file}")
-    cmder.successOut("Aligning finished.")
+    cmder.successOut("Aligning completed.")
 
 
 def merge_data():
@@ -50,7 +51,7 @@ def merge_data():
         os.system(f"mkdir -p {new_dir}")
         os.system(f"mv {file} {new_dir}")
     os.system(f"rm -rf {DATA1} {DATA2}")
-    cmder.successOut("Merge finished.")
+    cmder.successOut("Merge completed.")
 
 
 def classify():
@@ -78,7 +79,7 @@ def classify():
             os.system(f"sed -i '1d' {category_data}")
             # concate all records to a file
             os.system(f"cat {category_data} >> {category_dir}/{filename}")
-    cmder.successOut("Classify finished.")
+    cmder.successOut("Classify completed.")
 
 
 def datatidy():
@@ -87,18 +88,36 @@ def datatidy():
     classify()
 
 
-def count_data_num(path: str):
-    cnt = 0
-    cmder.infOut("Counting records number...")
-    files = list(Path(path).rglob("*.csv"))
-    for file in files:
-        file = str(file)
-        argu = "'{print $1}'"
-        _, res = cmder.runCmd(f"wc -l {file} | awk {argu}")
-        res = eval(res)
-        cnt += res
-    cmder.successOut("Records number = " + str(cnt))
+def construct(isCategory: bool):
+    cwd = os.path.dirname(os.path.realpath(__file__))
+    if not isCategory:
+        cmder.infOut("Constructing uncategorized dataset...")
+        all_dir = DATA + "All"
+        os.system(f"mkdir -p {all_dir}")
+        train_file = cwd + "/train.csv"
+        test_file = cwd + "/test.csv"
+        if os.path.isfile(train_file):
+            os.remove(train_file)
+        if os.path.isfile(test_file):
+            os.remove(test_file)
+        for category in category_dict:
+            os.system(f"cp {DATA}/{category}/* {all_dir}")
+        filepaths = list(Path(all_dir).rglob("video*.csv"))
+        files = []
+        for file in filepaths:
+            file = str(file)
+            files.append(file)
+        random.shuffle(files)
+        # train.csv
+        trains = files[:15]
+        for train in trains:
+            os.system(f"cat {train} >> {train_file}")
+        # test.csv
+        tests = files[15:]
+        for test in tests:
+            os.system(f"cat {test} >> {test_file}")
+    cmder.successOut("Construction completed.")
 
 
 if __name__ == "__main__":
-    datatidy()
+    construct(False)
