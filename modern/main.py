@@ -34,7 +34,7 @@ class Dataset:
     def read_dataset(self, data_path):
         data = pd.read_csv(data_path, header=None).values
         # hw * fps / downsample: 1 * 30 / 2 = 15
-        boundary = self.hw_unit * 2
+        boundary = self.hw_unit * 4
         view_data = data[:, 0:boundary]
         # pw * fps / downsample: 1 * 30 / 2 = 15
         view_label = data[:, boundary:]
@@ -43,8 +43,8 @@ class Dataset:
     def datasetmaker(self, data_path):
         data, label = self.read_dataset(data_path)
         data, label = torch.from_numpy(data), torch.from_numpy(label)
-        data = data.view(-1, self.hw_unit, 2).float()
-        label = label.view(-1, self.pw_unit, 2).float()
+        data = data.view(-1, self.hw_unit, 4).float()
+        label = label.view(-1, self.pw_unit, 4).float()
         dataset = TensorDataset(data, label)
         datasetloader = DataLoader(dataset=dataset, batch_size=30, shuffle=True)
         return datasetloader
@@ -54,7 +54,7 @@ def train_loop(dataloader, loss_name, loss_fn, epochs, lr):
     cmder.warningOut(f"Train models with {loss_name}")
     model_dir = MODELS_PATH + loss_name + "/models_e" + str(epochs) + "/"
 
-    model = VPLSTM(hid_size=64, layers=1, input_size=2, output_size=2)
+    model = VPLSTM(hid_size=64, layers=1, input_size=4, output_size=4)
     model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     torcheck.register(optimizer)

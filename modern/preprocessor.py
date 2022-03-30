@@ -6,9 +6,6 @@ import random
 from pathlib import Path
 import pandas as pd
 
-SPLIT_PATH = "../../dataset/shanghai_gaze/train_test_set.xlsx"
-SET_PATH = "../../dataset/shanghai_gaze/"
-
 DATA = "../../dataset/xr_data/"
 DATA1 = "../../dataset/xr_data/Experiment_1/"
 DATA2 = "../../dataset/xr_data/Experiment_2/"
@@ -17,7 +14,7 @@ HW = 1
 PW = 1
 FPS = 30
 DOWNSAMPLE = 2
-MODELS_PATH = "../../models/modern/hw" + str(HW) + "pw" + str(PW) + "models/"
+MODELS_PATH = "../../models/modern/hw" + str(HW) + "pw" + str(PW) + "/"
 
 
 category_dict = {
@@ -88,18 +85,50 @@ def datatidy():
     classify()
 
 
+def to_dataset(source_path: str, dest_path: str):
+    data = []
+    with open(source_path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.replace("\n", "")
+            line = line.split(",")
+            # [orientation.x, orientation.y, orientation.z, orientation.w]
+            data.append([line[2], line[3], line[4], line[5]])
+    set_data = []
+    for i in range(0, len(data), FPS):
+        k = []
+        hw_end = i + HW * FPS
+        pw_end = hw_end + PW * FPS
+        if pw_end >= len(data):
+            break
+        # sample history window data
+        for m in range(i, hw_end, DOWNSAMPLE):
+            for n in range(4):
+                k.append(data[m][n])
+        # sample predict window data
+        for m in range(hw_end, pw_end, DOWNSAMPLE):
+            for n in range(4):
+                k.append(data[m][n])
+        set_data.append(k)
+    df_set = pd.DataFrame(set_data)
+    print(df_set)
+    print(df_set.shape)
+    df_set.to_csv(dest_path, header=False, index=None, mode="w")
+
+
 def construct(isCategory: bool):
     cwd = os.path.dirname(os.path.realpath(__file__))
     if not isCategory:
         cmder.infOut("Constructing uncategorized dataset...")
         all_dir = DATA + "All"
-        os.system(f"mkdir -p {all_dir}")
-        train_file = cwd + "/train.csv"
-        test_file = cwd + "/test.csv"
-        if os.path.isfile(train_file):
-            os.remove(train_file)
-        if os.path.isfile(test_file):
-            os.remove(test_file)
+        os.system(f"mkdir -p {all_dir} {MODELS_PATH}")
+        train_temp = cwd + "/train_temp.csv"
+        test_temp = cwd + "/test_temp.csv"
+        train_file = MODELS_PATH + "train.csv"
+        test_file = MODELS_PATH + "/test.csv"
+        if os.path.isfile(train_temp):
+            os.remove(train_temp)
+        if os.path.isfile(test_temp):
+            os.remove(test_temp)
         for category in category_dict:
             os.system(f"cp {DATA}/{category}/* {all_dir}")
         filepaths = list(Path(all_dir).rglob("video*.csv"))
@@ -109,13 +138,18 @@ def construct(isCategory: bool):
             files.append(file)
         random.shuffle(files)
         # train.csv
+        cmder.infOut("Constructing train.csv")
         trains = files[:15]
         for train in trains:
-            os.system(f"cat {train} >> {train_file}")
+            os.system(f"cat {train} >> {train_temp}")
+        to_dataset(train_temp, train_file)
         # test.csv
+        cmder.infOut("Construction test.csv")
         tests = files[15:]
         for test in tests:
-            os.system(f"cat {test} >> {test_file}")
+            os.system(f"cat {test} >> {test_temp}")
+        to_dataset(test_temp, test_file)
+        os.system(f"rm {train_temp} {test_temp}")
     cmder.successOut("Construction completed.")
 
 

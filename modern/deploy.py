@@ -13,7 +13,7 @@ app = Flask(__name__)
 cors = CORS(app)
 app.config["CORS_HEADERS"] = "Content-Type"
 
-model_dir = "./hw1pw1models/MAE/models_e50/49/"
+model_dir = "../../models/modern/hw1pw1/MAE/models_e50/49/"
 
 host = "10.112.79.143"
 port = 5000
@@ -34,8 +34,8 @@ def predict():
             raise ValueError("Request body is not a vaild array")
         points = np.array(points)
         data = torch.from_numpy(points)
-        data = data.reshape(-1, 2).float()
-        label = data.reshape(-1, 2).float()
+        data = data.reshape(-1, 4).float()
+        label = data.reshape(-1, 4).float()
         dataset = TensorDataset(data, label)
         datasetloader = DataLoader(dataset=dataset, batch_size=30)
 
